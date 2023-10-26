@@ -1,0 +1,90 @@
+#+AUTHOR: Andrei
+#+TITLE: Rust for Bitcoin
+#+LANGUAGE: en
+#+OPTIONS: creator:nil
+#+OPTIONS: email:nil
+#+OPTIONS: html-postamble:nil
+#+OPTIONS: html-scripts:nil
+#+OPTIONS: num:nil
+#+OPTIONS: reveal_history:t
+#+OPTIONS: timestamp:nil
+#+OPTIONS: toc:nil
+
+* Why Rust?
+#+begin_notes
+There are many languages out there, but why do often see Rust to be used for bitcoin related libraries and applications.
+BDK, LDK, Breez SDK, it is not a conicidence
+Implementing self-custodial solutions, there is no way to chargeback, there is no authority to appeal
+dealing with users' funds is risky.
+#+end_notes
+#+ATTR_REVEAL: :frag (appear)
+*Safe language*
+
+* Properties of Rust
+#+ATTR_REVEAL: :frag (appear)
+1. static strong type system
+2. rich modern tooling
+3. cross-platform
+   
+** Static Strong Type System
+#+ATTR_REVEAL: :frag (appear)
+- static
+  #+begin_notes
+  - static means checked at compile time
+  - you need to make types right before the compiler will accept your code
+  - but C's type system is static also, but considered to be weak
+  #+end_notes
+- strong
+  #+begin_notes
+  - strong  means that Rust has stricter typing rules at compile time
+  - which implies that errors are more likely to happen during compilation
+  - checks arguments and return values functions, all enum values are hanled, all trait constraints
+  #+end_notes
+- /really/ strong\\
+  *memory ownership* and *shared access to memory* are handled by the type system
+  #+begin_notes
+  - very novel idea
+  - what elimiminates whole classes of software bugs and vulnerabilities
+  - we cannot overestimate the importance of strong type system
+  - but there are other languages with even more advanced and stronger type systems such as Haskell or Idris
+  #+end_notes
+
+** Rich Modern Tooling
+#+begin_notes
+Rust is a *modern* language
+- a very carefully designed
+- incorporates experience of decades language development
+- right balance between pragmatism and academic approach
+- joyful to read and write, easy and fast to programmatically analyse
+- done right
+#+end_notes
+#+ATTR_REVEAL: :frag (appear)
+- advanced, fast, and very helpful compiler
+- rich standard library
+- *cargo* — the Rust package manager\\
+  =cargo fmt=, =cargo clippy=
+- documentation generation and hosting
+  - [[https://doc.rust-lang.org/std][The Rust Standard Library]]
+  - [[https://docs.rs][Other Libraries]]
+- books
+  - [[https://doc.rust-lang.org/book][The Rust Book]]
+  - [[https://doc.rust-lang.org/cargo][The Cargo Book]]
+  - [[https://rust-lang.github.io/async-book][Asynchronous Programming]]
+  - ...
+
+#+begin_notes
+- with LSP for IDE support  
+#+end_notes
+
+** Cross-Platform
+#+ATTR_REVEAL: :frag (appear)
+- OS: Linux and Windows, but also Android, iOS
+- platforms: x86-64, ARM, WebAssembly
+#+begin_notes
+ironically it makes Rust *the language* for mobile development
+- Swift, Kotlin
+- React Native, Flatter
+tools like *UniFFI* makes rust libraries easily available for those platforms
+#+end_notes
+
+** Questions

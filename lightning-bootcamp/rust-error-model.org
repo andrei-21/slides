@@ -1,0 +1,279 @@
+#+AUTHOR: Andrei
+#+TITLE: Rust Error Model
+#+SUBTITLE: What kinds of errors may happen. How to better model them.
+#+LANGUAGE: en
+#+OPTIONS: creator:nil
+#+OPTIONS: email:nil
+#+OPTIONS: html-postamble:nil
+#+OPTIONS: html-scripts:nil
+#+OPTIONS: num:nil
+#+OPTIONS: reveal_history:t
+#+OPTIONS: timestamp:nil
+#+OPTIONS: toc:1
+
+* Nature of Errors
+** Example: Navigation App
+#+ATTR_REVEAL: :frag (appear)
+#+BEGIN_SRC rust -n
+struct GeoPoint {
+    pub latitude: i32,
+    pub longitude: i32,
+}
+
+pub fn route(
+    source: GeoPoint,
+    destination: GeoPoint,
+) -> Vec<GeoPoint> {
+    let map = read_map("/media/world.map");
+    let route = run_a_star(source, destination, &map);
+    let route_without_head = &route[1..];
+    route_without_head.to_vec()
+}
+#+END_SRC
+
+** What Can Go Wrong?
+*** =GeoPoint=
+#+BEGIN_SRC rust -n
+struct GeoPoint {
+    pub latitude: i32,
+    pub longitude: i32,
+}
+
+pub fn route(
+    source: GeoPoint,
+    destination: GeoPoint,
+) -> Vec<GeoPoint> {
+#+END_SRC
+#+ATTR_REVEAL: :frag (appear)
+ - What: Negative longitude
+ - How to fix: Fix coordinates
+ - Kind: Invalid input
+*** =read_map()=
+#+BEGIN_SRC rust -n 10
+      let map = read_map("/media/world.map");
+#+END_SRC
+#+ATTR_REVEAL: :frag (appear)
+ - What: No map found
+ - How to fix: Download maps
+ - Kind: Runtime (resource) error
+*** indexing operation: =route[1..]=
+#+BEGIN_SRC java -n 12
+      let route_without_head = &route[1..];
+#+END_SRC
+#+ATTR_REVEAL: :frag (appear)
+ - What: Empty =route=
+ - How to fix: Fix the code of =run_a_star()=
+ - Kind: Logic error
+*** Summary
+|--------------------+------------------+---------------|
+| Error              | How to fix       | Error kind    |
+|--------------------+------------------+---------------|
+| Negative longitude | Fix coordinates  | Invalid input |
+| No map found       | Download maps    | Runtime error |
+| Empty route        | Fix =run_a_star()= | Logic error   |
+|--------------------+------------------+---------------|
+
+** Invalid Input
+#+ATTR_REVEAL: :frag (appear)
+1. a function got invalid input, return *Invalid input* (perfectly fine)
+2. call a function, got *Invalid input* → *Logic error* for my function
+3. got invalid input from the user → return meaningful message
+
+** Bugs vs Recoverable Errors
+#+ATTR_REVEAL: :frag (appear)
+- *Bugs*
+  - invalid function input
+  - logic error
+  - invariant does not hold
+- *Recoverable errors*
+  - invalid user input
+  - invalid XML
+  - network connection failure
+
+** Actionable Pieces of Advice
+1. Limit Possible Errors
+2. Use Assertions
+3. Layers of Abstraction
+
+*** Limit Possible Errors
+#+ATTR_REVEAL: :frag (appear)
+1. Limit *input types* to only valid values\\
+   (=u32= for longitude)
+2. Limit *return types* to only valid values
+3. Take *resources* as input parameter
+*** Use Assertions
+Manual check that some condition holds true
+1. tests' improvements
+2. early failures
+3. executable documentation
+*** Layers of Abstraction
+Internal errors do not cross subsystems boundaries
+
+* Rust Error Model
+** What Rust offers
+1. =panic!()=
+2. =Result<T, E>=
+3. =Option<T>=
+
+** =panic!()= and Fellows
+1. =panic!()=
+2. =Result=, =Option=, and others
+   1. =fn unwrap(self) -> T=
+   2. =fn expect(self, msg: &str) -> T=
+*** What Are Good For
+- examples
+- prototype code
+- tests
+*** Example from The Book
+#+BEGIN_SRC rust -n
+    use std::net::IpAddr;
+
+    let home: IpAddr = "127.0.0.1"
+        .parse()
+        .expect("Hardcoded IP address should be valid");
+#+END_SRC
+*** Example from The Book Developed
+#+BEGIN_SRC rust -n
+    use std::net::IpAddr;
+    const HOME_ADDRESS: &str = "127.0.0.1";
+
+    let home: IpAddr = HOME_ADDRESS
+        .parse()
+        .expect("Hardcoded IP address should be valid");
+#+END_SRC
+*** Example from The Book Developed More
+#+BEGIN_SRC rust -n
+    use std::net::IpAddr;
+    const HOME_ADDRESS: &str = "localhost";
+
+    let home: IpAddr = HOME_ADDRESS
+        .parse()
+        .expect("Hardcoded IP address should be valid"); // Panic!
+#+END_SRC
+*** Avoid =panic!()=
+Return a logic error if possible
+#+ATTR_REVEAL: :frag (appear)
+Exception: =mutex.lock().unwrap()=\\
+#+ATTR_REVEAL: :frag (appear)
+#+BEGIN_QUOTE
+If another user of this mutex panicked while holding the mutex, then this call will return an error once the mutex is acquired.
+If you never panic, you will never panic here!
+#+END_QUOTE
+** Result and Option
+#+BEGIN_SRC rust
+pub enum Result<T, E> {
+    Ok(T),
+    Err(E),
+}
+
+pub enum Option<T> {
+    None,
+    Some(T),
+}
+#+END_SRC
+*** Unwrap Or
+1. =fn unwrap_or(self, default: T) -> T=
+2. =fn unwrap_or_default(self) -> T=
+*** The *=?=* Operator
+#+BEGIN_SRC rust
+use std::error::Error;
+use std::fs::File;
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let greeting_file = File::open("hello.txt")?;
+    // ...
+    Ok(())
+}
+#+END_SRC
+*** =map()=
+#+BEGIN_SRC rust
+fn map<U, F>(self, op: F) -> Result<U, E>
+where
+    F: FnOnce(T) -> U,
+#+END_SRC
+#+ATTR_REVEAL: :frag (appear)
+#+BEGIN_SRC rust
+age.parse::<u32>().map(|i| i * 2);
+#+END_SRC
+*** =map_err()=
+#+BEGIN_SRC rust
+fn map_err<F, O>(self, op: O) -> Result<T, F>
+where
+    O: FnOnce(E) -> F,
+#+END_SRC
+#+ATTR_REVEAL: :frag (appear)
+#+BEGIN_SRC rust
+fn read_person() -> Result<Person, MyError> {
+    let age = age.parse::<u32>()	
+        .map_err(|e| MyError::InvalidAge { msg: e.to_string() } )?;
+    // ...
+}
+#+END_SRC
+
+** Anyhow
+- https://docs.rs/anyhow/1.0.75/anyhow
+- https://docs.rs/anyhow/1.0.75/anyhow/struct.Error.html
+#+ATTR_REVEAL: :frag (appear)
+#+BEGIN_QUOTE
+Use Anyhow if you don't care what error type your functions return, you just want it to be easy.
+#+END_QUOTE
+
+** Perro
+*perro* 🐕‍🦺 — a watchdog for your errors\\
+https://github.com/getlipa/perro
+*** Error Model
+#+BEGIN_SRC rust
+pub enum Error<C> {
+    /// Invalid input.
+    /// Consider fixing the input and retrying the request.
+    InvalidInput { msg: String },
+
+    /// Recoverable problem (e.g. network issue, problem with en external service).
+    /// Consider retrying the request.
+    RuntimeError { code: C, msg: String },
+
+    /// Unrecoverable problem (e.g. internal invariant broken).
+    /// Consider suggesting the user to report the issue to the developers.
+    PermanentFailure { msg: String },
+}
+#+END_SRC
+*** Your Error Model
+#+BEGIN_SRC rust
+pub enum RuntimeErrorCode {
+    AuthServiceUnavailable,
+    OfferServiceUnavailable,
+    LspServiceUnavailable,
+    NodeUnavailable,
+}
+
+pub type Error = perro::Error<RuntimeErrorCode>;
+pub type Result<T> = std::result::Result<T, Error>;
+#+END_SRC
+*** Usage
+https://github.com/getlipa/perro/blob/main/src/lib.rs
+
+** Example: Navigation App
+#+ATTR_REVEAL: :frag (appear)
+#+BEGIN_SRC rust -n
+struct GeoPoint {
+    pub latitude: i32,
+    pub longitude: u32,
+}
+
+pub fn route(
+    source: GeoPoint,
+    destination: GeoPoint,
+) -> Result<Vec<GeoPoint>> {
+    let map =
+        read_map("/media/world.map")
+        .map_to_runtime_error("Failed to read map")?;
+    let route = run_a_star(source, destination, &map);
+    if route.empty() {
+        return Err(logic_error(
+            "run_a_star() returned an empty route"));
+    }
+    route.drain(1..).collect()
+}
+#+END_SRC
+
+** Questions

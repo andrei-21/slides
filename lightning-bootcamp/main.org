@@ -1,0 +1,113 @@
+#+AUTHOR: Andrei
+#+AUTHOR: Gabriel
+#+TITLE: Lightning Bootcamp
+#+LANGUAGE: en
+#+OPTIONS: creator:nil
+#+OPTIONS: email:nil
+#+OPTIONS: html-postamble:nil
+#+OPTIONS: html-scripts:nil
+#+OPTIONS: num:nil
+#+OPTIONS: reveal_history:t
+#+OPTIONS: timestamp:nil
+#+OPTIONS: toc:nil
+#+OPTIONS: ^:nil
+
+* Intro
+** Get to Know Each Other
+** You
+- where are you *from*?
+- what is your *background*?
+- when *learned* about bitcoin?
+- what *excites you most* about bitcoin?
+- what is your favorite *way to catch up* with bitcoin development?
+- ...
+** Warm Up
+#+begin_notes
+- ask question as we go
+- to make it interactive
+
+- who read the bitcoin standard
+- who runs a bitcoin core node, how?
+- who runs a lightning node, how?
+
+- current block reward
+- what is max number of bitcoin, why? 
+- next halving
+- what is coinbase
+- the genesis block creation time
+
+- where is Merkel root for witness transactions placed
+- what is the name of the curve for ECDSA
+- the last block was mined 9 minutes ago, what is the expected time for the next block to be mined 
+#+end_notes
+
+* Plan
+1. Why Rust for Bitcoin
+2. Error Model
+3. UniFFI
+4. Seminar
+
+* Rust for Bitcoin
+** Why Rust for Bitcoin
+[[./rust-for-bitcoin.org][Slides]]
+** Error Model
+[[./rust-error-model.org][Slides]]
+** UniFFI
+https://mozilla.github.io/uniffi-rs
+*** Examples
+- BDK [[https://github.com/bitcoindevkit/bdk-ffi/blob/master/bdk-ffi/src/bdk.udl][bdk.udl]]
+- LDK Node [[https://github.com/lightningdevkit/ldk-node/blob/main/bindings/ldk_node.udl][ldk_node.udl]]
+- Breez SDK [[https://github.com/breez/breez-sdk/blob/main/libs/sdk-bindings/src/breez_sdk.udl][breez_sdk.udl]]
+- LipaLightningLib [[https://github.com/getlipa/lipa-lightning-lib/blob/main-breez/src/lipalightninglib.udl][lipalightninglib.udl]]
+*** Limitations
+- no async
+- where to put documentation
+*** Questions
+** Seminar
+*** Guess the Number
+A CLI game to guess the number
+#+ATTR_REVEAL: :frag (appear)
+#+BEGIN_SRC sh
+$ ./guess
+>> help
+...
+>> start 1 30
+I selected a secret number between 1 and 30. Your guess...
+>> 3
+My number is greater than 3
+>> 21
+Congrats! My secret number was 21
+You took 2 attempts to find out my number.
+>> quit
+#+END_SRC
+*** Make Sure To
+- develop unit tests
+- =cargo fmt=
+- =cargo clippy=
+*** Libraries for CLI
+- colors with https://docs.rs/colored
+- Readline for Rust https://docs.rs/rustyline
+  - completions
+  - hints
+  - history
+- progress bar https://docs.rs/indicatif
+#+BEGIN_NOTES
+- CLI apps are very helpful for examples or prototypes
+- Try to make it generic such that you can reuse it in LDK, Breez SDK sessions
+#+END_NOTES
+*** Let's Start
+#+begin_src sh
+$ cargo new guess
+     Created binary (application) `guess` package
+$ cd guess/
+$ cargo run
+Hello, world!
+$ cargo add colored
+#+end_src
+
+* LDK
+[[./ldk-slides.org][Slides]]
+
+* Breez SDK
+[[./breez-sdk-slides.org][Slides]]
+

@@ -1,0 +1,72 @@
+#+AUTHOR: Andrei
+#+AUTHOR: Gabriel
+#+TITLE: Building on Breez SDK at Lipa
+#+SUB_TITLE: Why We Decided to Switch to Breez SDK at Lipa
+#+LANGUAGE: en
+#+OPTIONS: creator:nil
+#+OPTIONS: email:nil
+#+OPTIONS: html-postamble:nil
+#+OPTIONS: html-scripts:nil
+#+OPTIONS: num:nil
+#+OPTIONS: reveal_history:t
+#+OPTIONS: timestamp:nil
+#+OPTIONS: toc:nil
+#+OPTIONS: ^:nil
+
+* LDK Limitations
+#+ATTR_REVEAL: :frag (appear)
+- low level libraries
+  - missing features (e.g. LNURL)
+  - anchor outputs
+- not used much yet
+  - unreliable routing
+
+* Breez SDK/Greenlight
+** Advantages
+*** Good Payment Reliability
+- full up-to-date network graph
+- good CLN routing
+*** Comprehensive, Specific Solution
+#+ATTR_REVEAL: :frag (appear)
+- services
+  - native LSP
+  - on-chain swaps
+  - exchange rate service
+- features
+  - LNURL
+  - zero channel reserves
+  - concurrent access from different devices
+*** More to Come
+- access to other LSPs
+- send all funds
+- splicing
+*** Benefits
+An *experienced team* working on new end-user oriented features and improvements
+** Limitations
+#+ATTR_REVEAL: :frag (appear)
+- Greenlight is a centralised solution
+  - development
+  - deployment
+- difficult recovery without Greenlight/CLN
+*** Leak Information to Blockstream
+#+ATTR_REVEAL: :frag (appear)
+- amounts and timing of *all* payments
+- [Greenlight] destination of your *outgoing* payments (no local routing)
+- [Greenlight] all unpaid invoices
+
+* Where Does Your Expertise Lie?
+[[./imgs/layers.drawio.png]]
+
+* Practical Problems
+** There are Limits
+#+ATTR_REVEAL: :frag (appear)
+- LNURL withdraw was not returning the payment hash
+- no detailed error message in case of falure to send a payment
+- signer id is not persisted along with the payments
+** Push the Limits
+#+ATTR_REVEAL: :frag (appear)
+The power of *Open Source*
+
+* Questions
+
+* Seminar

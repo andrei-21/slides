@@ -1,0 +1,90 @@
+#+AUTHOR: Andrei
+#+AUTHOR: Gabriel
+#+TITLE: Building on LDK at Lipa
+#+LANGUAGE: en
+#+OPTIONS: creator:nil
+#+OPTIONS: email:nil
+#+OPTIONS: html-postamble:nil
+#+OPTIONS: html-scripts:nil
+#+OPTIONS: num:nil
+#+OPTIONS: reveal_history:t
+#+OPTIONS: timestamp:nil
+#+OPTIONS: toc:nil
+#+OPTIONS: ^:nil
+
+* Building a Non-Custodial Wallet
+#+ATTR_REVEAL: :frag (appear)
+1. mobile Android and iOS
+2. easy onboarding (zero-conf channels on the fly)
+3. send/receive
+4. view payment history
+5. recovery with /only/ recovery phrase
+6. ...
+
+* What to Choose
+#+ATTR_REVEAL: :frag (appear)
+1. Do It Yourself
+   - very hard to develop
+   - very hard to keep up
+2. LND, not designed to be a library
+   - hard to run on mobile
+   - slow to start
+   - long sync (block headers only)
+3. LDK
+   a set of libraries encapsulating complexity of the Lightning Network
+
+* Why LDK
+- Rust libraries
+- small extendable crates
+- no assumptions about the execution environment
+
+* Our Journey
+** Implementation
+#+ATTR_REVEAL: :frag (appear)
+1. transaction sync
+2. payment data storage
+3. channel state persistance
+4. LSP and channels on the fly
+** Deployment
+#+ATTR_REVEAL: :frag (appear)
+1. rapid gossip sync
+2. channel state persistance
+3. LSP node
+** Problems
+*** Rapid Gossip Sync
+- not configurable
+- takes a lot of memory to generate snapshots
+*** Unreliable Routing
+#+ATTR_REVEAL: :frag (appear)
+- buggy rapid gossip sync
+- outdated routing fees
+- multipath payments
+- lack of probing
+
+* Our Learnings
+- low level libraries
+- not used much yet
+
+* Seminar
+** LNURL
+#+ATTR_REVEAL: :frag (appear)
+Static code to pay
+#+ATTR_REVEAL: :frag (appear)
+https://geyser.fund/project/citadel
+*** Docs
+https://github.com/lnurl/luds
+1. LNURL Decoding: 01.md
+2. LNURL Pay: 06.md
+3. LNURL Withdraw: 03.md
+** Lightning Address
+#+ATTR_REVEAL: :frag (appear)
+https://github.com/andrerfneves/lightning-address
+** Setup
+1. =git clone https://github.com/gcomte/ldk-node=
+2. run the node =cargo run=
+   - starts LDK Node
+   - connects to *lipa* testnet node
+3. copy your *node id*
+4. put your *node id* to https://tinyurl.com/nodeids
+5. keep your node running
+6. wait for a channel from us...
